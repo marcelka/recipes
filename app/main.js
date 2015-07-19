@@ -4,6 +4,7 @@ import {routes} from './routes';
 
 const appElement = document.querySelector('#app');
 
+
 Router.run(routes, Router.HistoryLocation, (Handler) => {
   React.render(<Handler />, appElement);
 });
