@@ -1,30 +1,42 @@
 import React, {Component, PropTypes} from 'react';
-import {DefaultRoute, NotFoundRoute, Route} from 'react-router';
+import {DefaultRoute, Route} from 'react-router';
 
-import {App} from "./components/App"
-import {Home} from "./components/Home"
-import {AddItem} from "./components/AddItem"
-import {ComposeRecipe} from "./components/ComposeRecipe"
+import {App} from './components/App';
+import {Home} from './components/Home';
+import {AddItem} from './components/AddItem';
+import {ComposeRecipe} from './components/ComposeRecipe';
 import {Dispatcher} from 'vlux';
 
 const countingStore = (state, action, payload) => {
   switch (action) {
     case 'inc':
-      return {...state, num: state.num + payload}
+      return {...state, num: state.num + payload};
     case 'dec':
-      return {...state, num: state.num - payload}
+      return {...state, num: state.num - payload};
     default:
-      return state
+      return state;
   }
-}
+};
 
+const todoStore = (state, action, payload) => {
+  switch (action) {
+    case 'add-item':
+      return {...state, todos: [...state.todos, payload]};
+    default:
+      return state;
+  }
+};
 
-var dispatcher = new Dispatcher(countingStore, {num: 0, todos:[]});
+const store = (state, action, payload) => {
+  return todoStore(countingStore(state, action, payload), action, payload);
+};
+
+var dispatcher = new Dispatcher(store, {num: 0, todos:[]});
 
 class AppWrapper extends Component {
 
   static childContextTypes = {
-    disp: React.PropTypes.object,
+    disp: PropTypes.object,
   }
 
   getChildContext() {
@@ -37,12 +49,12 @@ class AppWrapper extends Component {
     dispatcher.on('change', () => this.setState({}));
   }
 
-  render(){
+  render() {
     return (<App />);
   }
 }
 
-dispatcher.on('change', ()=>{console.log('state change')});
+dispatcher.on('change', () => { console.log('state change'); });
 
 export const routes = (
   <Route handler={AppWrapper} path="/">

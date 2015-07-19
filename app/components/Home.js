@@ -2,28 +2,15 @@ import React, {Component, findDOMNode, PropTypes} from 'react';
 import {Link} from 'react-router';
 
 export class Home extends Component {
-    state = {
-    counter: 7,
-    todos: [],
-  };
-
-  handleUpdate() {
-    this.setState({counter: this.state.counter + 1});
-  }
-
-  decrease() {
-    this.setState({counter: this.state.counter - 1});
-  }
 
   addItem() {
     const input = findDOMNode(this.refs.test);
     const {value} = input;
-    this.setState({todos: [...this.state.todos, value]});
-    input.value = ''
+    this.context.disp.dispatch('add-item', value);
   }
 
   static contextTypes = {
-    disp: React.PropTypes.object.isRequired,
+    disp: PropTypes.object.isRequired,
   }
 
   render() {
@@ -42,7 +29,7 @@ export class Home extends Component {
         <div><input ref="test"/></div>
         <div><button onClick={::this.addItem}>Add item</button></div>
         <ul>
-          {this.state.todos.map((item) =>
+          {this.context.disp.state.todos.map((item) =>
             <li>{item}</li>)
           }
         </ul>
