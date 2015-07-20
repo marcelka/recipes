@@ -1,8 +1,23 @@
-import React, {Component, findDOMNode} from 'react';
-import style  from './App.css';
+import React, {Component, PropTypes} from 'react';
 import {Link, RouteHandler} from 'react-router';
+import style from './App.css';
+import {dispatcher} from '../dispatcher';
 
-export class App extends  Component {
+export class App extends Component {
+  static childContextTypes = {
+    disp: PropTypes.object,
+  }
+
+  getChildContext() {
+    return {
+      disp: dispatcher,
+    };
+  }
+
+  componentDidMount() {
+    dispatcher.on('change', () => this.setState({}));
+  }
+
   render() {
     return (
       <div className={style.ahoj}>
@@ -10,6 +25,7 @@ export class App extends  Component {
           <Link to="home">Home</Link>
           <Link to="compose-recipe">Compose recipe</Link>
           <Link to="add-item">Add item</Link>
+          <Link to="recipe">Recipe</Link>
         </div>
         <div>
           <RouteHandler />
@@ -18,3 +34,5 @@ export class App extends  Component {
     );
   }
 }
+
+dispatcher.on('change', () => { console.log('state change'); });
