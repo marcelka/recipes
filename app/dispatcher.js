@@ -33,18 +33,12 @@ function composeStores(stores) {
   };
 }
 
-function idGenGen(prefix) {
-  var n = 0;
-  return function() {n++; return prefix + n; };
-}
-
 const store = composeStores([countingStore, todoStore, recipeStore]);
 
 const state = {
   num: 0,
   todos:[],
   recipes: [],
-  idGen: idGenGen('prefix'),
   editedRecipe: {
     title: '',
     ingredients: [],
