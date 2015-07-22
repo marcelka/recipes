@@ -2,8 +2,11 @@ import React, {Component, PropTypes} from 'react';
 import {Link, RouteHandler} from 'react-router';
 import style from './App.css';
 import {dispatcher} from '../dispatcher';
-import {createActions} from './Recipe';
+import {createActions as createRecipeActions} from './Recipe';
+import {createActions as createFirebaseActions} from '../listenFirebase.js';
+import Firebase from 'firebase';
 
+export const firebaseRef = new Firebase('https://popping-fire-7024.firebaseio.com/');
 
 function idGenGen(prefix) {
   var n = 0;
@@ -24,12 +27,14 @@ export class App extends Component {
 
   componentDidMount() {
     dispatcher.on('change', () => this.setState({}));
+    this.actions.getFoods();
+    this.actions.getRecipes();
   }
 
   render() {
-    var actions = {...createActions(dispatcher, idGenerator)};
+    this.actions = {...createRecipeActions(dispatcher, idGenerator), ...createFirebaseActions(dispatcher, firebaseRef)};
     var state = dispatcher.state;
-    var props = {dispatcher, idGenerator, actions, state};
+    var props = {dispatcher, idGenerator, actions: this.actions, state};
 
     return (
       <div className={style.ahoj}>
@@ -38,6 +43,7 @@ export class App extends Component {
           <Link to="compose-recipe">Compose recipe</Link>
           <Link to="add-item">Add item</Link>
           <Link to="recipe">Recipe</Link>
+          <Link to="search">Search</Link>
         </div>
         <div>
           <RouteHandler {...props} />

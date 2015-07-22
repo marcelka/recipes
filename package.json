@@ -4,6 +4,10 @@
   "description": "Recipe composer",
   "main": "index.js",
   "dependencies": {
+    "babel": "^5.8.3",
+    "babel-core": "^5.8.3",
+    "firebase": "^2.2.7",
+    "gulp": "^3.9.0",
     "react": "^0.13.3",
     "react-router": "^0.13.3",
     "redux": "^0.12.0",

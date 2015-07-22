@@ -1,3 +1,7 @@
 :local(.ahoj) {
   background-color: yellow;
 }
+
+a {
+   padding: 10px;
+}
