@@ -7,16 +7,13 @@ import {foods, getFood} from '../food_db';
 export function createActions(dispatcher, idGenerator) {
   return {
     addEmptyIngredient() {
-      dispatcher.dispatch('add-empty-ingredient', idGenerator());
+      dispatcher.dispatch('add-empty-ingredient');
     },
     removeIngredient(id) {
       dispatcher.dispatch('remove-ingredient', id);
     },
-    updateRecipe(data) {
-      dispatcher.dispatch('update-recipe', data);
-    },
-    updateIngredient(id, data) {
-      dispatcher.dispatch('update-ingredient', {id, data});
+    updateRecipe(path, value) {
+      dispatcher.dispatch('update-recipe', {path, value});
     },
   };
 }
@@ -30,7 +27,7 @@ export function recipeStore(state, action, payload) {
           ...state,
           editedRecipe: {
             ...recipe,
-            ingredients: [...recipe.ingredients, {id: payload}],
+            ingredients: [...recipe.ingredients, {}],
           }
         };
     case 'remove-ingredient':
@@ -42,28 +39,34 @@ export function recipeStore(state, action, payload) {
           }
         };
     case 'update-recipe':
-        return {
-          ...state,
-          editedRecipe: {...recipe, ...payload},
-        };
-    case 'update-ingredient':
-        var newIngredients = [];
-        for (var i = 0; i < recipe.ingredients.length; i++) {
-          var ingredient = recipe.ingredients[i];
-          if (ingredient.id === payload.id)
-            newIngredients.push({...ingredient, ...payload.data});
-          else
-            newIngredients.push(ingredient);
-        }
-        return {
-          ...state,
-          editedRecipe: {
-            ...recipe, ingredients: newIngredients,
-          }
-        };
+        var {path, value} = payload;
+        return updated(state, join('editedRecipe', path), value);
     default:
       return state;
   }
+}
+
+function pathify(path) {
+  if (typeof path === 'string' || typeof path === 'number')
+    return [path];
+  return path;
+}
+
+function join(path1, path2) {
+  return [...pathify(path1), ...pathify(path2)];
+}
+
+function updated(obj, path, value) {
+  path = pathify(path);
+  var key = path[0];
+  var result;
+  if (typeof key === 'string') result = {...obj};
+  if (typeof key === 'number') result = [...obj];
+  if (path.length === 1)
+    result[key] = value;
+  else
+    result[key] = updated(result[key], path.slice(1), value);
+  return result;
 }
 
 function calculateProperty(ingredients, property) {
@@ -96,19 +99,19 @@ export class Recipe extends Component {
     disp: PropTypes.object.isRequired,
   }
 
-  renderIngredient(id, foodId, amount) {
+  renderIngredient(order, foodId, amount) {
     var actions = this.props.actions;
     var options = [];
     for (var food of foods)
       options.push(<option value={food[0]}> {food[1].name} </option>);
     return (
-      <li data-ingredientid={id}>
-        <input onChange={(e) => actions.updateIngredient(id, {'amount': e.target.value})} type='number' value={amount} /> grams of
-        <select onChange={(e) => actions.updateIngredient(id, {'foodId': e.target.value})} value={foodId}>
+      <li>
+        <input onChange={(e) => actions.updateRecipe(['ingredients', order, 'amount'], e.target.value)} type='number' value={amount} /> grams of
+        <select onChange={(e) => actions.updateRecipe(['ingredients', order, 'foodId'], e.target.value)} value={foodId}>
           <option> Select food </option>
           {options}
         </select>
-        <button onClick={(e) => actions.removeIngredient(id)}> Remove from recipe </button>
+        <button onClick={(e) => actions.removeIngredient(order)}> Remove from recipe </button>
       </li>
     );
   }
@@ -123,13 +126,13 @@ export class Recipe extends Component {
         <p />
 
         Title:
-        <input onChange={(e) => actions.updateRecipe({'title': e.target.value})} type='text' value={recipe.title} />
+        <input onChange={(e) => actions.updateRecipe('title', e.target.value)} type='text' value={recipe.title} />
         <hr />
 
         Ingredients: <p />
         <button onClick={(e) => actions.addEmptyIngredient()}> Add ingredient </button>
         <ul>
-          {recipe.ingredients.map((i) => ::this.renderIngredient(i.id, i.foodId, i.amount))}
+          {recipe.ingredients.map((ingr, order) => ::this.renderIngredient(order, ingr.foodId, ingr.amount))}
         </ul>
         <hr />
 
@@ -140,7 +143,7 @@ export class Recipe extends Component {
         <hr />
 
         Instructions: <p />
-        <textArea onChange={(e) => actions.updateRecipe({'instructions': e.target.value})} value={recipe.instructions} />
+        <textArea onChange={(e) => actions.updateRecipe('instructions', e.target.value)} value={recipe.instructions} />
       </div>
     );
   }
