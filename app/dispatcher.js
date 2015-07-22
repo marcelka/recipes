@@ -43,6 +43,8 @@ const state = {
     title: '',
     ingredients: [],
     instructions: '',
+    showStats: {
+    },
   },
 };
 

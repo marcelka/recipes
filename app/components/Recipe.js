@@ -137,6 +137,11 @@ export class Recipe extends Component {
         <hr />
 
         Nutrition values:
+        <p />
+        <input checked={recipe.showStats.whole} onChange={(e) => actions.updateRecipe(['showStats', 'whole'], !recipe.showStats.whole)} type='checkbox'>
+          whole meal
+        </input>
+        <p />
         <ul>
           {nutriData.map((nd) => <li> {nd.displayName}: {nd.value} </li>)}
         </ul>
