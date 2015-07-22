@@ -1,5 +1,4 @@
 import React, {Component, PropTypes} from 'react';
-import {foods, getFood} from '../food_db';
 
 // Ingredient: id, amount, foodId
 
@@ -69,13 +68,23 @@ function updated(obj, path, value) {
   return result;
 }
 
-function calculateProperty(ingredients, property) {
-  return ingredients.reduce(function(total, ingredient) {
-    var food = getFood(ingredient.foodId);
+function calculateProperty(ingredients, property, foods) {
+  return ingredients.reduce((total, ingredient) => {
+    var food = foods[ingredient.foodId];
     if (food && food[property] && ingredient.amount)
       return total + ingredient.amount * food[property];
     return total;
   }, 0);
+}
+
+function nutritionData(ingredients, properties, foods) {
+  var nd = [];
+  for (var i = 0; i < properties.length; i++)
+    nd.push({
+      ...properties[i],
+      value: calculateProperty(ingredients, properties[i].name, foods),
+    });
+  return nd;
 }
 
 const NUTRITION_PROPERTIES = [
@@ -84,15 +93,6 @@ const NUTRITION_PROPERTIES = [
   {name: 'fiber', displayName: 'Fiber'},
 ];
 
-function nutritionData(ingredients, properties) {
-  var nd = [];
-  for (var i = 0; i < properties.length; i++)
-    nd.push({
-      ...properties[i],
-      value: calculateProperty(ingredients, properties[i].name),
-    });
-  return nd;
-}
 
 export class Recipe extends Component {
   static contextTypes = {
@@ -102,8 +102,8 @@ export class Recipe extends Component {
   renderIngredient(order, foodId, amount) {
     var actions = this.props.actions;
     var options = [];
-    for (var food of foods)
-      options.push(<option value={food[0]}> {food[1].name} </option>);
+    var foods = this.props.state.foods;
+    options = Object.keys(foods).map((id) => <option value={id}> {foods[id].name} </option>);
     return (
       <li>
         <input onChange={(e) => actions.updateRecipe(['ingredients', order, 'amount'], e.target.value)} type='number' value={amount} /> grams of
@@ -117,9 +117,12 @@ export class Recipe extends Component {
   }
 
   render() {
+    if (typeof (this.props.state.foods) === 'undefined') {
+      return <div> loading... </div>;
+    }
     var recipe = this.props.state.editedRecipe;
     var actions = this.props.actions;
-    var nutriData = nutritionData(recipe.ingredients, NUTRITION_PROPERTIES);
+    var nutriData = nutritionData(recipe.ingredients, NUTRITION_PROPERTIES, this.props.state.foods);
 
     return (
       <div>
