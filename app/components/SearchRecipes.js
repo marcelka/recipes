@@ -1,25 +1,25 @@
 import React, {Component} from 'react';
 
-export class Search extends Component {
-
-  state = {recipes: {}}
+export class SearchRecipes extends Component {
 
   renderRecipe(foods, recipe) {
-    var ingredients = recipe.ingredients;
+    var ingredients = recipe.ingredients || [];
     var rendIng = [];
-    Object.keys(ingredients).forEach(
-      (ingredientId) => {
-        rendIng.push(<li> {foods[ingredientId].name}: {ingredients[ingredientId]} g </li>);
-      });
+    for (var ing of ingredients) {
+      if (typeof foods[ing.foodId] !== 'undefined' && typeof ing.amount !== 'undefined') {
+        rendIng.push(<li> {foods[ing.foodId].name}: {ing.amount} g </li>);
+      }
+    }
     return (<ul> {rendIng} </ul>);
-  };
+  }
 
   render() {
     var rendRec = [];
-    const recipes = this.props.state.recipes;
-    const foods = this.props.state.foods;
+    var state = this.props.dispatcher.state;
+    const recipes = state.recipes;
+    const foods = state.foods;
     if ((typeof recipes === 'undefined') || (typeof foods === 'undefined')) {
-      return <div> Loading </div>;
+      return <div> Loading... </div>;
     }
     Object.keys(recipes).forEach((id) => rendRec.push(<li> {recipes[id].title} {this.renderRecipe(foods, recipes[id])} </li>));
     return (

@@ -1,7 +1,8 @@
 import gulp from 'gulp';
 import Firebase from 'firebase';
+import firebaseUrl from './settings';
 
-var firebaseRef = new Firebase('https://popping-fire-7024.firebaseio.com/');
+var firebaseRef = new Firebase(firebaseUrl);
 
 function Food(id, name, kj, protein, carbohydrate, fat, fiber, grams=1) {
   return {
@@ -36,10 +37,10 @@ gulp.task('upload-recipes', () => {
 
   const getRandomRecipe = () => {
     const randomChoice = (lst) => lst[Math.floor(Math.random() * lst.length)];
-    var res = {ingredients: {}};
+    var res = {ingredients: []};
     let foods = ['banana', 'strawberry', 'milk', 'butter', 'flour', 'egg', 'dark chocolate'];
     for (let i = 1; i < 8; i++) {
-      res.ingredients[`id${i}`] = Math.floor((Math.random() * 1000));
+      res.ingredients.push({foodId: `id${i}`, amount: Math.floor((Math.random() * 1000))});
     }
     var attr = ['Delicious', 'Wonderfull', 'Juicy', 'Spicy', 'Hot', 'Icy'];
     res.title = randomChoice(attr) + ' ' + randomChoice(foods);

@@ -1,11 +1,11 @@
 import React, {Component, findDOMNode} from 'react';
 import {Link} from 'react-router';
 
-export class ComposeRecipe extends Component {
+export class SearchFoods extends Component {
   render() {
     return (
       <div>
-        "Here you will be able to compose recipe."
+        "Here will be able to search foods. Workin on it."
       </div>
     );
   }

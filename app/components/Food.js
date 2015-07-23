@@ -1,7 +1,7 @@
 import React, {Component, findDOMNode} from 'react';
 import {Link} from 'react-router';
 
-export class AddItem extends Component {
+export class Food extends Component {
   render() {
     return (
       <div>

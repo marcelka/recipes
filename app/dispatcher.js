@@ -1,26 +1,6 @@
 import {Dispatcher} from 'vlux';
 import {recipeStore} from './components/Recipe';
 
-const countingStore = (state, action, payload) => {
-  switch (action) {
-    case 'inc':
-      return {...state, num: state.num + payload};
-    case 'dec':
-      return {...state, num: state.num - payload};
-    default:
-      return state;
-  }
-};
-
-const todoStore = (state, action, payload) => {
-  switch (action) {
-    case 'add-item':
-      return {...state, todos: [...state.todos, payload]};
-    default:
-      return state;
-  }
-};
-
 const firebaseStore = (state, action, payload) => {
   switch (action) {
     case 'firebase': {
@@ -44,7 +24,7 @@ function composeStores(stores) {
   };
 }
 
-const store = composeStores([countingStore, todoStore, recipeStore, firebaseStore]);
+const store = composeStores([recipeStore, firebaseStore]);
 
 /*
 schema state = {
