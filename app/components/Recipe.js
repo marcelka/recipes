@@ -1,9 +1,9 @@
-import React, {Component, PropTypes} from 'react';
+import React, {Component} from 'react';
 
 // Ingredient: id, amount, foodId
 
 // Actions
-export function createActions(dispatcher, idGenerator) {
+export function createActions(dispatcher, firebaseRef, router) {
   return {
     addEmptyIngredient() {
       dispatcher.dispatch('add-empty-ingredient');
@@ -13,6 +13,26 @@ export function createActions(dispatcher, idGenerator) {
     },
     updateRecipe(path, value) {
       dispatcher.dispatch('update-recipe', {path, value});
+    },
+    saveRecipe(recipe, recipeId) {
+      if (recipeId) {
+        firebaseRef.child('recipes').child(recipeId).set(recipe);
+      } else {
+        var ref = firebaseRef.child('recipes').push(recipe);
+        router.transitionTo('edit-recipe', {'recipeId': ref.key()});
+      }
+    },
+    loadRecipe(recipeId) {
+      firebaseRef.child('recipes').child(recipeId).once(
+        'value',
+        function(recipe) {
+          if (recipe.val()) {
+            var r = recipe.val();
+            r.ingredients = r.ingredients || [];
+            dispatcher.dispatch('load-recipe', r);
+          }
+        }
+      );
     },
   };
 }
@@ -40,6 +60,8 @@ export function recipeStore(state, action, payload) {
     case 'update-recipe':
         var {path, value} = payload;
         return updated(state, join('editedRecipe', path), value);
+    case 'load-recipe':
+        return {...state, editedRecipe: payload};
     default:
       return state;
   }
@@ -95,14 +117,10 @@ const NUTRITION_PROPERTIES = [
 
 
 export class Recipe extends Component {
-  static contextTypes = {
-    disp: PropTypes.object.isRequired,
-  }
-
   renderIngredient(order, foodId, amount) {
     var actions = this.props.actions;
     var options = [];
-    var foods = this.props.state.foods;
+    var foods = this.props.dispatcher.state.foods;
     options = Object.keys(foods).map((id) => <option value={id}> {foods[id].name} </option>);
     return (
       <li>
@@ -116,13 +134,24 @@ export class Recipe extends Component {
     );
   }
 
-  render() {
-    if (typeof (this.props.state.foods) === 'undefined') {
-      return <div> loading... </div>;
+  componentWillMount() {
+    var recipeId = this.props.params.recipeId;
+    if (recipeId) {
+      this.props.actions.loadRecipe(recipeId);
     }
-    var recipe = this.props.state.editedRecipe;
+  }
+
+  render() {
+    var state = this.props.dispatcher.state;
+
+    // TODO wait for recipe to load
+    if (typeof (state.foods) === 'undefined') {
+      return <div> Loading... </div>;
+    }
+    var recipe = state.editedRecipe;
+    var recipeId = this.props.params.recipeId;
     var actions = this.props.actions;
-    var nutriData = nutritionData(recipe.ingredients, NUTRITION_PROPERTIES, this.props.state.foods);
+    var nutriData = nutritionData(recipe.ingredients, NUTRITION_PROPERTIES, state.foods);
 
     return (
       <div>
@@ -147,6 +176,9 @@ export class Recipe extends Component {
 
         Instructions: <p />
         <textArea onChange={(e) => actions.updateRecipe('instructions', e.target.value)} value={recipe.instructions} />
+        <hr />
+
+        <button onClick={(e) => actions.saveRecipe(recipe, recipeId)}> Save this recipe </button>
       </div>
     );
   }
