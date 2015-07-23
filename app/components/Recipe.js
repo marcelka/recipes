@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import {FileForm} from './FileForm';
+import {getThumbnail, updateIn, join} from './utils';
 
 // Ingredient: id, amount, foodId
 
@@ -59,7 +61,7 @@ export function recipeStore(state, action, payload) {
         };
     case 'update-recipe':
         var {path, value} = payload;
-        return updated(state, join('editedRecipe', path), value);
+        return updateIn(state, join('editedRecipe', path), value);
     case 'load-recipe':
         return {...state, editedRecipe: payload};
     default:
@@ -67,28 +69,6 @@ export function recipeStore(state, action, payload) {
   }
 }
 
-function pathify(path) {
-  if (typeof path === 'string' || typeof path === 'number')
-    return [path];
-  return path;
-}
-
-function join(path1, path2) {
-  return [...pathify(path1), ...pathify(path2)];
-}
-
-function updated(obj, path, value) {
-  path = pathify(path);
-  var key = path[0];
-  var result;
-  if (typeof key === 'string') result = {...obj};
-  if (typeof key === 'number') result = [...obj];
-  if (path.length === 1)
-    result[key] = value;
-  else
-    result[key] = updated(result[key], path.slice(1), value);
-  return result;
-}
 
 function calculateProperty(ingredients, property, foods) {
   return ingredients.reduce((total, ingredient) => {
@@ -177,6 +157,14 @@ export class Recipe extends Component {
         Instructions: <p />
         <textArea onChange={(e) => actions.updateRecipe('instructions', e.target.value)} value={recipe.instructions} />
         <hr />
+
+        Image: <p />
+        <img src={getThumbnail(recipe.image, 'm')} />
+
+        <hr />
+
+        UploadImage: <p />
+        <FileForm onUpload = {(image) => actions.updateRecipe('image', image)} />
 
         <button onClick={(e) => actions.saveRecipe(recipe, recipeId)}> Save this recipe </button>
       </div>

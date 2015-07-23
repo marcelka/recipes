@@ -39,8 +39,6 @@ schema state = {
 */
 
 const state = {
-  num: 0,
-  todos:[],
   recipes: [],
   editedRecipe: {
     title: '',

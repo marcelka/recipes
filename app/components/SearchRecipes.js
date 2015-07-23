@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import {getThumbnail} from './utils';
 
 export class SearchRecipes extends Component {
 
@@ -10,7 +11,12 @@ export class SearchRecipes extends Component {
         rendIng.push(<li> {foods[ing.foodId].name}: {ing.amount} g </li>);
       }
     }
-    return (<ul> {rendIng} </ul>);
+    return (<div>
+              <ul> {rendIng} </ul>
+              {typeof recipe.image === 'undefined' ? '' :
+              <img src={getThumbnail(recipe.image, 'm')} />}
+              <hr />
+            </div>);
   }
 
   render() {
