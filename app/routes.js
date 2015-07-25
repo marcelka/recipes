@@ -7,6 +7,7 @@ import {Food} from './components/Food';
 import {Recipe} from './components/Recipe';
 import {SearchFoods} from './components/SearchFoods';
 import {SearchRecipes} from './components/SearchRecipes';
+import {NotFound} from './components/NotFound';
 
 export const routes = (
   <Route handler={App} path="/">
@@ -17,5 +18,6 @@ export const routes = (
     <Route handler={Recipe} name="compose-recipe" path="/compose-recipe" />
     <Route handler={Recipe} name="edit-recipe" path="/edit-recipe/:recipeId" />
     <Route handler={SearchRecipes} name="search-recipes" path="/search-recipes" />
+    <Route handler={NotFound} name="not-found" path="/not-found" />
   </Route>
 );
