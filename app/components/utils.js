@@ -39,3 +39,12 @@ export function updateIn(obj, path, value) {
     result[key] = updateIn(result[key], path.slice(1), value);
   return result;
 }
+
+export function getIn(obj, path, notFound) {
+  path = makePath(path);
+  if (obj[path[0]]) {
+    if (path.length === 1) return obj[path[0]];
+    return getIn(obj[path[0]], path.slice(1), notFound);
+  }
+  return notFound;
+}

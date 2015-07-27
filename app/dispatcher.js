@@ -40,10 +40,11 @@ schema state = {
 
 const state = {
   recipes: [],
-  editedRecipe: {
-    title: '',
-    ingredients: [],
-    instructions: '',
+  editedRecipes: {
+    _new: undefined,
+    byId: {
+      //id : editedRecipe
+    },
   },
 };
 
