@@ -68,7 +68,7 @@ export function createActions(dispatcher, firebaseRef, router) {
                 data: {isNew, isSaved, data: r}
               });
             } else {
-              router.transitionTo('not-found');
+              router.replaceWith('not-found');
             }
           }
         );
@@ -153,6 +153,10 @@ export class Recipe extends Component {
     if (!recipe) {
       this.props.actions.loadRecipe(recipeId);
     }
+  }
+
+  componentWillMount() {
+    this.componentWillReceiveProps(this.props);
   }
 
   renderIngredient(order, foodId, amount) {
